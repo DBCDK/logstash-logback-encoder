@@ -24,32 +24,33 @@ pipeline {
                     def pom = readMavenPom file: 'pom.xml'
                     def version = pom.getVersion()
                     pom.setVersion(version + "-SNAPSHOT")
+                    pom.distributionManagement = null
                     writeMavenPom file: 'pom.xml', model: pom
                 }
             }
         }
-        stage("build") {
-            steps {
-                sh """
-                    rm -rf \$WORKSPACE/.repo
-                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo clean
-                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo verify
-                """
-            }
-        }
-        stage("upload") {
-            when {
-                expression {
-                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'dbc'
-                }
-            }
-            steps {
-                sh """
-                    rm -rf \$WORKSPACE/.repo
-                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar deploy:deploy
-                """
-            }
-        }
+        // stage("build") {
+        //     steps {
+        //         sh """
+        //             rm -rf \$WORKSPACE/.repo
+        //             mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo clean
+        //             mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo verify
+        //         """
+        //     }
+        // }
+        // stage("upload") {
+        //     when {
+        //         expression {
+        //             (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'dbc'
+        //         }
+        //     }
+        //     steps {
+        //         sh """
+        //             rm -rf \$WORKSPACE/.repo
+        //             mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar deploy:deploy
+        //         """
+        //     }
+        // }
     }
     post {
         failure {
