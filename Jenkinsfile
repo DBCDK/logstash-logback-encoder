@@ -37,14 +37,19 @@ pipeline {
                 """
             }
         }
-    //     stage("upload") {
-    //         steps {
-    //             sh """
-    //                 rm -rf \$WORKSPACE/.repo
-    //                 mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar upload:upload
-    //             """
-    //         }
-    //     }
+        stage("upload") {
+            when {
+                expression {
+                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'dbc'
+                }
+            }
+            steps {
+                sh """
+                    rm -rf \$WORKSPACE/.repo
+                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar upload:upload
+                """
+            }
+        }
     }
     post {
         failure {
@@ -74,9 +79,6 @@ pipeline {
                     )
                 }
             }
-        }
-        success {
-            step([$class: 'JavadocArchiver', javadocDir: 'target/site/apidocs', keepAll: false])
         }
     }
 }
