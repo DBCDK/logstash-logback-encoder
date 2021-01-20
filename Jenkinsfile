@@ -49,7 +49,7 @@ pipeline {
             steps {
                 sh """
                     rm -rf \$WORKSPACE/.repo
-                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo -f pom-deploy.xml jar:jar deploy:deploy
+                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo -f pom-deploy.xml jar:jar shade:shade deploy:deploy
                 """
             }
         }
