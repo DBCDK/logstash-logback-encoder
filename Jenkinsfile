@@ -25,6 +25,9 @@ pipeline {
                     def version = pom.getVersion()
                     pom.setVersion(version + "-SNAPSHOT")
                     writeMavenPom file: 'pom.xml', model: pom
+                    def pomDeploy = readMavenPom file: 'pom-deploy.xml'
+                    pomDeploy.setVersion(version + "-SNAPSHOT")
+                    writeMavenPom file: 'pom-deploy.xml', model: pomDeploy
                 }
             }
         }
