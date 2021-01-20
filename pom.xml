@@ -2,7 +2,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.logstash.logback</groupId>
+    <groupId>dk.dbc.net.logstash.logback</groupId>
     <artifactId>logstash-logback-encoder</artifactId>
     <version>6.5</version>
 
