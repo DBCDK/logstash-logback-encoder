@@ -2,6 +2,20 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <repositories>
+        <repository>
+            <id>mavenrepo.dbc.dk</id>
+            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <parent>
+        <groupId>dk.dbc</groupId>
+        <artifactId>microservice-pom</artifactId>
+        <version>latest-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
     <groupId>dk.dbc.net.logstash.logback</groupId>
     <artifactId>logstash-logback-encoder</artifactId>
     <version>6.6</version>
@@ -430,16 +444,5 @@
             </build>
         </profile>
     </profiles>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
 </project>
