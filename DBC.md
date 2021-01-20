@@ -8,3 +8,13 @@ git fetch https://github.com/logstash/logstash-logback-encoder.git "refs/tags/*:
 git checkout dbc
 git merge logstash-logback-encoder-...
 ```
+
+## maven
+
+```xml
+        <dependency>
+            <groupId>dk.dbc.net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.?-SNAPSHOT</version>
+        </dependency>
+```
