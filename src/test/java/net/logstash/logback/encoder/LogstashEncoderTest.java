@@ -61,6 +61,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.data.Percentage;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
@@ -196,7 +197,7 @@ public class LogstashEncoderTest {
                 + "  level_value : 40000%n"
                 + "}%n"));
     }
-    
+
 
     @Test
     public void loggerNameIsShortenedProperly() throws Exception {
@@ -363,6 +364,75 @@ public class LogstashEncoderTest {
         encoder.encode(event);
     }
     
+    @Test
+    public void remappingIsPerformed() throws Exception {
+        Map<String, String> mdcMap = new HashMap<>();
+        mdcMap.put("thing_one:i", "42");
+        mdcMap.put("thing_two:b", "false");
+        mdcMap.put("thing_three:f", "1.2E-2");
+
+        ILoggingEvent event = mockBasicILoggingEvent(Level.ERROR);
+        when(event.getMDCPropertyMap()).thenReturn(mdcMap);
+
+        encoder.getFieldNames().setMdc("mdc");
+        encoder.setRemapValues(true);
+        encoder.start();
+        byte[] encoded = encoder.encode(event);
+
+        JsonNode node = MAPPER.readTree(encoded);
+        System.err.println("" + node);
+        assertThat(node.get("mdc").get("thing_one").isIntegralNumber()).isTrue();
+        assertThat(node.get("mdc").get("thing_one").intValue()).isEqualTo(42);
+        assertThat(node.get("mdc").get("thing_two").isBoolean()).isTrue();
+        assertThat(node.get("mdc").get("thing_two").booleanValue()).isFalse();
+        assertThat(node.get("mdc").get("thing_three").isFloatingPointNumber()).isTrue();
+        assertThat(node.get("mdc").get("thing_three").doubleValue()).isCloseTo(1.2E-2, Percentage.withPercentage(0.1));
+    }
+
+    @Test
+    public void remappingWithBadValuesIsNotPerformed() throws Exception {
+        Map<String, String> mdcMap = new HashMap<>();
+        mdcMap.put("thing_one:i", "fool");
+        mdcMap.put("thing_two:b", "me");
+        mdcMap.put("thing_three:f", "not");
+
+        ILoggingEvent event = mockBasicILoggingEvent(Level.ERROR);
+        when(event.getMDCPropertyMap()).thenReturn(mdcMap);
+
+        encoder.getFieldNames().setMdc("mdc");
+        encoder.setRemapValues(true);
+        encoder.start();
+        byte[] encoded = encoder.encode(event);
+
+        JsonNode node = MAPPER.readTree(encoded);
+        System.err.println("" + node);
+        assertThat(node.get("mdc").get("thing_one:i").textValue()).isEqualTo("fool");
+        assertThat(node.get("mdc").get("thing_two:b").textValue()).isEqualTo("me");
+        assertThat(node.get("mdc").get("thing_three:f").textValue()).isEqualTo("not");
+    }
+
+    @Test
+    public void remappingIsNotPerformed() throws Exception {
+        Map<String, String> mdcMap = new HashMap<>();
+        mdcMap.put("thing_one:i", "42");
+        mdcMap.put("thing_two:b", "false");
+        mdcMap.put("thing_three:f", "1.2E-2");
+
+        ILoggingEvent event = mockBasicILoggingEvent(Level.ERROR);
+        when(event.getMDCPropertyMap()).thenReturn(mdcMap);
+
+        encoder.getFieldNames().setMdc("mdc");
+        encoder.setRemapValues(false);
+        encoder.start();
+        byte[] encoded = encoder.encode(event);
+
+        JsonNode node = MAPPER.readTree(encoded);
+        System.err.println("" + node);
+        assertThat(node.get("mdc").get("thing_one:i").textValue()).isEqualTo("42");
+        assertThat(node.get("mdc").get("thing_two:b").textValue()).isEqualTo("false");
+        assertThat(node.get("mdc").get("thing_three:f").textValue()).isEqualTo("1.2E-2");
+    }
+
     @Test
     public void callerDataIsIncluded() throws Exception {
         ILoggingEvent event = mockBasicILoggingEvent(Level.ERROR);

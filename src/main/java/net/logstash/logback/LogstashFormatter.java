@@ -334,6 +334,15 @@ public class LogstashFormatter extends LoggingEventCompositeJsonFormatter {
         }
     }
 
+    public boolean  isRemapValues() {
+        return  isIncludeMdc() && mdcProvider.isRemapValues();
+    }
+    public void setRemapValues(boolean remapValues) {
+        if (isIncludeMdc()) {
+            mdcProvider.setRemapValues(remapValues);
+        }
+    }
+
     public boolean isIncludeContext() {
         return contextProvider != null;
     }

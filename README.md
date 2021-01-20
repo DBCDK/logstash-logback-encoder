@@ -899,6 +899,16 @@ specify`<mdcKeyFieldName>mdcKeyName=fieldName</mdcKeyFieldName>`:
 </encoder>
 ```
 
+As a feature, since MDC fields always has String values, you can configure with
+
+```xml
+<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+  <remapValues>true</remapValues>
+</encoder>
+```
+
+Then any key with the suffix `:i` will have the value converted to an integer type value, and the `:i` removed from the key. If the value cannot be converted, it will stay a string, and the key will not be remapped. This allows for better type guessing in the ELK stack. Same rule applies for `:f` to a floating point value, and `:b` to a boolean value.
+
 ### Context fields
 
 By default, each property of Logback's Context (`ch.qos.logback.core.Context`)

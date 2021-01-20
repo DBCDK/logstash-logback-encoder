@@ -28,6 +28,7 @@ import net.logstash.logback.fieldnames.LogstashFieldNames;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import java.util.Locale;
 
 /**
  * Includes {@link MDC} properties in the JSON output according to
@@ -71,7 +72,9 @@ public class MdcJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> im
     private List<String> excludeMdcKeyNames = new ArrayList<>();
 
     private final Map<String, String> mdcKeyFieldNames = new HashMap<>();
-    
+
+    private boolean remapValues;
+
     @Override
     public void start() {
         if (!this.includeMdcKeyNames.isEmpty() && !this.excludeMdcKeyNames.isEmpty()) {
@@ -100,8 +103,43 @@ public class MdcJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> im
                         generator.writeObjectFieldStart(getFieldName());
                         hasWrittenStart = true;
                     }
+                    String value = entry.getValue();
+                    Object logValue = value;
+                    if (remapValues && value != null && fieldName.length() > 2) {
+                        try {
+                            if (fieldName.endsWith(":i")) {
+                                logValue = Long.parseLong(value);
+                                fieldName = fieldName.substring(0, fieldName.length() - 2);
+                            } else if (fieldName.endsWith(":f")) {
+                                logValue = Double.parseDouble(value);
+                                fieldName = fieldName.substring(0, fieldName.length() - 2);
+                            } else if (fieldName.endsWith(":b")) {
+                                switch (value.toLowerCase(Locale.ROOT)) {
+                                    case "true":
+                                    case "t":
+                                    case "yes":
+                                    case "y":
+                                    case "1":
+                                        logValue = true;
+                                        fieldName = fieldName.substring(0, fieldName.length() - 2);
+                                        break;
+                                    case "false":
+                                    case "f":
+                                    case "no":
+                                    case "n":
+                                    case "0":
+                                        logValue = false;
+                                        fieldName = fieldName.substring(0, fieldName.length() - 2);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        } catch (RuntimeException ex) {
+                        }
+                    }
                     generator.writeFieldName(fieldName);
-                    generator.writeObject(entry.getValue());
+                    generator.writeObject(logValue);
                 }
             }
             if (hasWrittenStart) {
@@ -152,5 +190,13 @@ public class MdcJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> im
         }
         mdcKeyFieldNames.put(split[0], split[1]);
     }
-    
+
+    public void setRemapValues(boolean remapValues) {
+        this.remapValues = remapValues;
+    }
+
+    public boolean isRemapValues() {
+        return remapValues;
+    }
+
 }

@@ -113,6 +113,10 @@ public class LogstashLayout extends LoggingEventCompositeJsonLayout {
         getFormatter().addMdcKeyFieldName(mdcKeyFieldName);
     }
 
+    public void setRemapValues(boolean remapValues) {
+        getFormatter().setRemapValues(remapValues);
+    }
+
     public boolean isIncludeTags() {
         return getFormatter().isIncludeTags();
     }
