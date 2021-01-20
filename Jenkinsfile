@@ -46,7 +46,7 @@ pipeline {
             steps {
                 sh """
                     rm -rf \$WORKSPACE/.repo
-                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar upload:upload
+                    mvn -B -Dmaven.repo.local=\$WORKSPACE/.repo jar:jar deploy:deploy
                 """
             }
         }
