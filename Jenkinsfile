@@ -23,7 +23,7 @@ pipeline {
                 script {
                     def pom = readMavenPom file: 'pom.xml'
                     def version = pom.getVersion()
-                    pom.setVersion(version + "-SNAPSHOT")
+                    pom.setVersion(version + "dbc-SNAPSHOT")
                     writeMavenPom file: 'pom.xml', model: pom
                 }
             }
