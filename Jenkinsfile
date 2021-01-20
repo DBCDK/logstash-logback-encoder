@@ -28,8 +28,6 @@ pipeline {
                 }
             }
         }
-    }
-    stages {
         stage("build") {
             steps {
                 sh """
@@ -39,8 +37,6 @@ pipeline {
                 """
             }
         }
-    }
-    // stages {
     //     stage("upload") {
     //         steps {
     //             sh """
@@ -49,7 +45,7 @@ pipeline {
     //             """
     //         }
     //     }
-    // }
+    }
     post {
         failure {
             script {
